@@ -1,0 +1,18 @@
+portfolio/
+├── index.html           # Home Page
+├── about.html           # About Me Page
+├── projects.html        # Projects Page
+├── contact.html         # Contact Page
+├── css/
+│   └── style.css        # Consolidated Stylesheet
+├── js/
+│   └── script.js        # JavaScript (for future interactivity)
+├── assets/
+│   ├── images/          # Images for the website
+│   │   ├── profile.jpg                   # Profile picture for About page
+│   │   ├── ai-event-detection.jpg       # Project image 1
+│   │   ├── llm-content-generator.jpg   # Project image 2
+│   │   └── portfolio-website.jpg       # Project image 3
+│   └── icons/           # Icons (optional)
+│       └── favicon.ico  # Website favicon
+└── README.md            # Project overview and instructions (optional)
