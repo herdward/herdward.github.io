@@ -563,54 +563,56 @@
             }
         }
 
-        async function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message || isLoading) return;
+async function sendMessage() {
+    const message = messageInput.value.trim();
+    if (!message || isLoading) return;
 
-            // Hide suggestions after first message
-            if (suggestions) {
-                suggestions.style.display = 'none';
-            }
+    isLoading = true;
+    sendBtn.disabled = true;
+    
+    // Add user message
+    addMessage('user', message);
+    messageInput.value = '';
+    
+    // Add typing indicator
+    const typingEl = addTypingIndicator();
 
-            isLoading = true;
-            sendBtn.disabled = true;
-            sendBtn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top:2px solid white;border-radius:50%;animation:spin 1s linear infinite;"></div>';
+    try {
+        console.log('Sending request to:', `${API_BASE_URL}/chat`); // Debug log
+        
+        const response = await fetch(`${API_BASE_URL}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question: message,
+                mode: currentMode
+            })
+        });
 
-            // Add user message
-            addMessage('user', message);
-            messageInput.value = '';
-            adjustTextareaHeight();
-
-            // Add typing indicator
-            const typingEl = addTypingIndicator();
-
-            try {
-                // Try API call
-                const response = await fetch(`${API_BASE_URL}/ask`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: message, mode: currentMode })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    removeTypingIndicator(typingEl);
-                    addMessage('bot', data.response);
-                } else {
-                    throw new Error('API failed');
-                }
-            } catch (error) {
-                // Demo responses
-                setTimeout(() => {
-                    removeTypingIndicator(typingEl);
-                    addMessage('bot', getDemoResponse(message));
-                }, 1000 + Math.random() * 1000);
-            }
-
-            isLoading = false;
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = '<span>Send</span>';
+        console.log('Response status:', response.status); // Debug log
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Response data:', data); // Debug log - THIS IS KEY
+            
+            removeTypingIndicator(typingEl);
+            
+            // Make sure you're getting the 'response' field
+            const botResponse = data.response || data.answer || 'No response received';
+            addMessage('bot', botResponse);
+            
+        } else {
+            throw new Error(`API request failed: ${response.status}`);
         }
+    } catch (error) {
+        console.error('Error:', error);
+        removeTypingIndicator(typingEl);
+        addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+    }
+
+    isLoading = false;
+    sendBtn.disabled = false;
+}
 
         function addMessage(type, content) {
             const messageEl = document.createElement('div');
