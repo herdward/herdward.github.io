@@ -595,7 +595,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     removeTypingIndicator(typingEl);
-                    addMessage('bot', data.answer);
+                    addMessage('bot', data.response);
                 } else {
                     throw new Error('API failed');
                 }
