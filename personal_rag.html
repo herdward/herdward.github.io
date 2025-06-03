@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask Edward - AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #5855eb;
+            --primary-light: #f0f0ff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --bg-white: #ffffff;
+            --bg-gray: #f9fafb;
+            --bg-light: #f3f4f6;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+            max-height: 900px;
+            min-height: 600px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 28px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        /* Controls */
+        .controls {
+            background: var(--bg-white);
+            padding: 16px 28px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 2px;
+        }
+
+        .toggle-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            background: transparent;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+
+        .status-dot.online {
+            background: #10b981;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            padding: 24px 28px;
+            overflow-y: auto;
+            background: var(--bg-white);
+        }
+
+        .chat-area::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-area::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        /* Messages */
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .message-wrapper.user {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .avatar.bot {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .avatar.user {
+            background: var(--bg-light);
+            color: var(--text-secondary);
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .message-wrapper.bot .message-content {
+            background: var(--bg-gray);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-wrapper.user .message-content {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            margin-left: 44px;
+        }
+
+        .message-wrapper.user .message-time {
+            margin-left: 0;
+            margin-right: 44px;
+            text-align: right;
+        }
+
+        /* System Messages */
+        .system-message {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin: 16px 0;
+            font-size: 0.875rem;
+            color: #92400e;
+            text-align: center;
+        }
+
+        /* Suggestions */
+        .suggestions {
+            background: var(--bg-gray);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .suggestions h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestions-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .suggestion-btn {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestion-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .suggestion-btn::before {
+            content: '💭';
+            font-size: 0.875rem;
+        }
+
+        /* Typing Indicator */
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-left: 44px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Input Area */
+        .input-area {
+            background: var(--bg-white);
+            border-top: 1px solid var(--border-light);
+            padding: 20px 28px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            width: 100%;
+        }
+
+        .input-field {
+            width: 100%;
+            min-height: 44px;
+            max-height: 120px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+            background: var(--bg-white);
+            box-sizing: border-box;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 12px 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 80px;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            body { padding: 10px; }
+            .container { height: 95vh; border-radius: 12px; }
+            .header, .controls, .chat-area, .input-area { padding-left: 20px; padding-right: 20px; }
+            .controls { flex-direction: column; gap: 12px; align-items: stretch; }
+            .input-container { flex-direction: column; }
+            .send-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Ask Edward</h1>
+            <p>AI assistant with deep knowledge of Edward's background, projects, and expertise</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="mode-toggle">
+                <button class="toggle-btn active" data-mode="public">Public Info</button>
+                <button class="toggle-btn" data-mode="private">Full Context</button>
+            </div>
+            <div class="status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Demo Mode</span>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area" id="chatArea">
+            <!-- Welcome Message -->
+            <div class="message">
+                <div class="message-wrapper bot">
+                    <div class="avatar bot">🤖</div>
+                    <div>
+                        <div class="message-content">
+                            Hi! I'm Edward's AI assistant. I have comprehensive knowledge about his background, technical projects, work philosophy, and career journey. What would you like to know about Edward?
+                        </div>
+                    </div>
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+
+            <!-- Demo Mode Notice -->
+            <div class="system-message">
+                ⚠️ Demo Mode: Backend offline. Try the suggestions below to see sample responses!
+            </div>
+
+            <!-- Suggestions -->
+            <div class="suggestions" id="suggestions">
+                <h3>💡 Popular questions:</h3>
+                <div class="suggestions-grid">
+                    <button class="suggestion-btn">Why would Edward be excellent for a Solutions Engineer role?</button>
+                    <button class="suggestion-btn">How did Edward first get into programming and coding?</button>
+                    <button class="suggestion-btn">What's Edward's approach to work and problem-solving?</button>
+                    <button class="suggestion-btn">Tell me about Edward's most impressive technical projects</button>
+                    <button class="suggestion-btn">What are Edward's key technical strengths?</button>
+                    <button class="suggestion-btn">How does Edward approach learning new technologies?</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        class="input-field"
+                        placeholder="Ask me anything about Edward..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                <button id="sendBtn" class="send-btn">
+                    <span>Send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        // CLOUDFLARE WORKER
+        const API_BASE_URL = 'https://shrill-bonus-0099.edwardhe0011.workers.dev';
+        let currentMode = 'public';
+        let isLoading = false;
+
+        // DOM elements
+        const chatArea = document.getElementById('chatArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+        const suggestions = document.getElementById('suggestions');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            checkBackendStatus();
+            adjustTextareaHeight();
+        });
+
+        function setupEventListeners() {
+            // Mode toggle
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', () => setMode(btn.dataset.mode));
+            });
+
+            // Send button
+            sendBtn.addEventListener('click', sendMessage);
+
+            // Enter key (Shift+Enter for new line)
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Auto-resize textarea
+            messageInput.addEventListener('input', adjustTextareaHeight);
+
+            // Suggestion buttons
+            suggestionBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    messageInput.value = btn.textContent.replace('💭', '').trim();
+                    adjustTextareaHeight();
+                    sendMessage();
+                });
+            });
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            toggleBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            addSystemMessage(`Switched to ${mode === 'public' ? 'Public Information' : 'Full Context'} mode`);
+        }
+
+        function adjustTextareaHeight() {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+        }
+
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`, { timeout: 3000 });
+                if (response.ok) {
+                    statusDot.classList.add('online');
+                    statusText.textContent = 'Connected';
+                } else {
+                    throw new Error('Backend offline');
+                }
+            } catch (error) {
+                statusDot.classList.remove('online');
+                statusText.textContent = 'Demo Mode';
+            }
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || isLoading) return;
+
+            // Hide suggestions after first message
+            if (suggestions) {
+                suggestions.style.display = 'none';
+            }
+
+            isLoading = true;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top:2px solid white;border-radius:50%;animation:spin 1s linear infinite;"></div>';
+
+            // Add user message
+            addMessage('user', message);
+            messageInput.value = '';
+            adjustTextareaHeight();
+
+            // Add typing indicator
+            const typingEl = addTypingIndicator();
+
+            try {
+                // Try API call
+                const response = await fetch(`${API_BASE_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: message, mode: currentMode })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    removeTypingIndicator(typingEl);
+                    addMessage('bot', data.answer);
+                } else {
+                    throw new Error('API failed');
+                }
+            } catch (error) {
+                // Demo responses
+                setTimeout(() => {
+                    removeTypingIndicator(typingEl);
+                    addMessage('bot', getDemoResponse(message));
+                }, 1000 + Math.random() * 1000);
+            }
+
+            isLoading = false;
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<span>Send</span>';
+        }
+
+        function addMessage(type, content) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const avatar = type === 'user' ? '👤' : '🤖';
+            
+            messageEl.innerHTML = `
+                <div class="message-wrapper ${type}">
+                    <div class="avatar ${type}">${avatar}</div>
+                    <div>
+                        <div class="message-content">${content}</div>
+                    </div>
+                </div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            chatArea.appendChild(messageEl);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addSystemMessage(content) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'system-message';
+            messageEl.textContent = content;
+            chatArea.appendChild(messageEl);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const typingEl = document.createElement('div');
+            typingEl.className = 'typing';
+            typingEl.innerHTML = `
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>Edward's AI is thinking...</span>
+            `;
+            chatArea.appendChild(typingEl);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            return typingEl;
+        }
+
+        function removeTypingIndicator(el) {
+            if (el && el.parentNode) {
+                el.parentNode.removeChild(el);
+            }
+        }
+
+        function getDemoResponse(question) {
+            const responses = {
+                'solutions engineer': "Edward would excel as a Solutions Engineer because he uniquely bridges deep technical expertise with exceptional communication skills. His experience building RAG systems and multi-agent AI applications shows he can work with cutting-edge technologies, while his self-taught background demonstrates his ability to explain complex concepts clearly. His work on MindSpar reveals he understands both technical implementation and business value—exactly what Solutions Engineering requires.",
+                
+                'programming': "Edward's programming journey started authentically at 14 with Roblox scripting in Lua, then progressed to Discord bots in JavaScript. This self-directed learning through YouTube tutorials and Stack Overflow gave him exceptional problem-solving skills and adaptability. When he formalized his knowledge at Cornell, this practical foundation made him stand out among peers who only had academic experience.",
+                
+                'problem-solving': "Edward believes in building systems that genuinely solve real problems rather than showcasing technical complexity. He values learning by doing over pure theory and gravitates toward roles where he can bridge technical and business domains. His approach is refreshingly practical—he'd rather find solutions that work for everyone than pursue elegant code that serves no one.",
+                
+                'projects': "Edward's projects showcase both technical sophistication and real-world value. MindSpar, his AI-powered debate platform, uses multi-agent LLM systems to improve online discourse quality. This Personal RAG System demonstrates privacy-aware AI applications. His projects consistently combine advanced technology with user-centered design.",
+                
+                'strengths': "Edward's key strengths include rapid technology adoption, bridging technical-business domains, and practical problem-solving. His self-taught foundation makes him exceptionally good at learning new technologies quickly and explaining complex concepts accessibly. His first-generation college background provides unique perspective and resilience.",
+                
+                'learning': "Edward is a natural self-directed learner who thrives on hands-on experimentation. He prefers building real projects over theoretical study, believing the best insights come from getting stuck and figuring out solutions. This approach has served him well from Roblox scripting to advanced AI systems."
+            };
+
+            const questionLower = question.toLowerCase();
+            for (const [key, response] of Object.entries(responses)) {
+                if (questionLower.includes(key)) {
+                    return `${response}<br><br><em>🎭 Demo response - connect to Edward's RAG backend for real-time answers.</em>`;
+                }
+            }
+
+            return `That's a great question about Edward! I'd love to provide a detailed answer, but I need to be connected to the actual RAG backend to access his complete knowledge base.<br><br><em>🎭 Try asking about his Solutions Engineer fit, programming journey, work philosophy, technical projects, or key strengths.</em>`;
+        }
+    </script>
+</body>
+</html>
