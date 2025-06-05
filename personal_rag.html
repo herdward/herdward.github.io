@@ -52,7 +52,6 @@
             min-height: 600px;
         }
 
-        /* Header */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -72,7 +71,6 @@
             font-weight: 400;
         }
 
-        /* Controls */
         .controls {
             background: var(--bg-white);
             padding: 16px 28px;
@@ -126,7 +124,28 @@
             background: #10b981;
         }
 
-        /* Chat Area */
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .clear-btn {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: var(--border);
+        }
+
         .chat-area {
             flex: 1;
             padding: 24px 28px;
@@ -147,7 +166,6 @@
             border-radius: 2px;
         }
 
-        /* Messages */
         .message {
             margin-bottom: 20px;
             animation: fadeIn 0.3s ease;
@@ -217,7 +235,6 @@
             text-align: right;
         }
 
-        /* System Messages */
         .system-message {
             background: #fef3c7;
             border: 1px solid #f59e0b;
@@ -229,59 +246,6 @@
             text-align: center;
         }
 
-        /* Suggestions */
-        .suggestions {
-            background: var(--bg-gray);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .suggestions h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .suggestions-grid {
-            display: grid;
-            gap: 8px;
-        }
-
-        .suggestion-btn {
-            background: var(--bg-white);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 0.875rem;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .suggestion-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow);
-        }
-
-        .suggestion-btn::before {
-            content: '💭';
-            font-size: 0.875rem;
-        }
-
-        /* Typing Indicator */
         .typing {
             display: flex;
             align-items: center;
@@ -307,7 +271,6 @@
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-        /* Input Area */
         .input-area {
             background: var(--bg-white);
             border-top: 1px solid var(--border-light);
@@ -318,13 +281,11 @@
             display: flex;
             gap: 12px;
             align-items: flex-end;
-            width: 100%;
         }
 
         .input-wrapper {
             flex: 1;
             position: relative;
-            width: 100%;
         }
 
         .input-field {
@@ -340,7 +301,6 @@
             outline: none;
             transition: border-color 0.2s;
             background: var(--bg-white);
-            box-sizing: border-box;
         }
 
         .input-field:focus {
@@ -367,7 +327,6 @@
             gap: 6px;
             min-width: 80px;
             justify-content: center;
-            flex-shrink: 0;
         }
 
         .send-btn:hover:not(:disabled) {
@@ -382,7 +341,6 @@
             transform: none;
         }
 
-        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -398,7 +356,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Responsive */
         @media (max-width: 640px) {
             body { padding: 10px; }
             .container { height: 95vh; border-radius: 12px; }
@@ -411,27 +368,27 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <h1>Ask Edward</h1>
             <p>AI assistant with deep knowledge of Edward's background, projects, and expertise</p>
         </div>
 
-        <!-- Controls -->
         <div class="controls">
             <div class="mode-toggle">
                 <button class="toggle-btn active" data-mode="public">Public Info</button>
                 <button class="toggle-btn" data-mode="private">Full Context</button>
             </div>
-            <div class="status">
-                <div class="status-dot" id="statusDot"></div>
-                <span id="statusText">Demo Mode</span>
+            <div class="session-info">
+                <div class="status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Connecting...</span>
+                </div>
+                <span id="sessionId">Session: Loading...</span>
+                <button class="clear-btn" onclick="clearConversation()">Clear Chat</button>
             </div>
         </div>
 
-        <!-- Chat Area -->
         <div class="chat-area" id="chatArea">
-            <!-- Welcome Message -->
             <div class="message">
                 <div class="message-wrapper bot">
                     <div class="avatar bot">🤖</div>
@@ -443,27 +400,8 @@
                 </div>
                 <div class="message-time">Just now</div>
             </div>
-
-            <!-- Demo Mode Notice -->
-            <div class="system-message">
-                ⚠️ Demo Mode: Backend offline. Try the suggestions below to see sample responses!
-            </div>
-
-            <!-- Suggestions -->
-            <div class="suggestions" id="suggestions">
-                <h3>💡 Popular questions:</h3>
-                <div class="suggestions-grid">
-                    <button class="suggestion-btn">Why would Edward be excellent for a Solutions Engineer role?</button>
-                    <button class="suggestion-btn">How did Edward first get into programming and coding?</button>
-                    <button class="suggestion-btn">What's Edward's approach to work and problem-solving?</button>
-                    <button class="suggestion-btn">Tell me about Edward's most impressive technical projects</button>
-                    <button class="suggestion-btn">What are Edward's key technical strengths?</button>
-                    <button class="suggestion-btn">How does Edward approach learning new technologies?</button>
-                </div>
-            </div>
         </div>
 
-        <!-- Input Area -->
         <div class="input-area">
             <div class="input-container">
                 <div class="input-wrapper">
@@ -483,27 +421,38 @@
 
     <script>
         // Configuration
-        // CLOUDFLARE WORKER
-        const API_BASE_URL = 'https://shrill-bonus-0099.edwardhe0011.workers.dev';
+        const API_BASE_URL = 'http://localhost:8000'; // Update for production: 'http://your-hetzner-ip:8000'
+        
+        // Session Management
+        let sessionId = generateSessionId();
         let currentMode = 'public';
         let isLoading = false;
-
+        let conversationHistory = []; // Store conversation locally
+        
         // DOM elements
         const chatArea = document.getElementById('chatArea');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
+        const sessionIdDisplay = document.getElementById('sessionId');
         const toggleBtns = document.querySelectorAll('.toggle-btn');
-        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
-        const suggestions = document.getElementById('suggestions');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
             checkBackendStatus();
             adjustTextareaHeight();
+            updateSessionDisplay();
         });
+
+        function generateSessionId() {
+            return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+        }
+
+        function updateSessionDisplay() {
+            sessionIdDisplay.textContent = `Session: ${sessionId.split('_')[1]}`;
+        }
 
         function setupEventListeners() {
             // Mode toggle
@@ -524,15 +473,6 @@
 
             // Auto-resize textarea
             messageInput.addEventListener('input', adjustTextareaHeight);
-
-            // Suggestion buttons
-            suggestionBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    messageInput.value = btn.textContent.replace('💭', '').trim();
-                    adjustTextareaHeight();
-                    sendMessage();
-                });
-            });
         }
 
         function setMode(mode) {
@@ -548,6 +488,21 @@
             messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
         }
 
+        function clearConversation() {
+            if (confirm('Clear conversation history?')) {
+                conversationHistory = [];
+                sessionId = generateSessionId();
+                updateSessionDisplay();
+                
+                // Clear chat area but keep initial message
+                const initialMessage = chatArea.children[0];
+                chatArea.innerHTML = '';
+                chatArea.appendChild(initialMessage);
+                
+                addSystemMessage('Conversation cleared. New session started.');
+            }
+        }
+
         async function checkBackendStatus() {
             try {
                 const response = await fetch(`${API_BASE_URL}/health`, { timeout: 3000 });
@@ -560,59 +515,84 @@
             } catch (error) {
                 statusDot.classList.remove('online');
                 statusText.textContent = 'Demo Mode';
+                addSystemMessage('⚠️ Demo Mode: Backend offline. Try connecting to see real responses!');
             }
         }
 
-async function sendMessage() {
-    const message = messageInput.value.trim();
-    if (!message || isLoading) return;
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || isLoading) return;
 
-    isLoading = true;
-    sendBtn.disabled = true;
-    
-    // Add user message
-    addMessage('user', message);
-    messageInput.value = '';
-    
-    // Add typing indicator
-    const typingEl = addTypingIndicator();
+            isLoading = true;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top:2px solid white;border-radius:50%;animation:spin 1s linear infinite;"></div>';
 
-    try {
-        console.log('Sending request to:', `${API_BASE_URL}/chat`); // Debug log
-        
-        const response = await fetch(`${API_BASE_URL}/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                question: message,
-                mode: currentMode
-            })
-        });
+            // Add user message
+            addMessage('user', message);
+            messageInput.value = '';
+            adjustTextareaHeight();
 
-        console.log('Response status:', response.status); // Debug log
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log('Response data:', data); // Debug log - THIS IS KEY
-            
-            removeTypingIndicator(typingEl);
-            
-            // Make sure you're getting the 'response' field
-            const botResponse = data.response || data.answer || 'No response received';
-            addMessage('bot', botResponse);
-            
-        } else {
-            throw new Error(`API request failed: ${response.status}`);
+            // Add to conversation history
+            conversationHistory.push({
+                role: 'user',
+                content: message,
+                timestamp: new Date().toISOString()
+            });
+
+            // Add typing indicator
+            const typingEl = addTypingIndicator();
+
+            try {
+                console.log('Sending request with history:', conversationHistory.length, 'messages');
+                
+                // Prepare conversation history for API (last 10 messages to avoid token limits)
+                const recentHistory = conversationHistory.slice(-10).map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                }));
+
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: message,
+                        mode: currentMode,
+                        session_id: sessionId,
+                        conversation_history: recentHistory
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    removeTypingIndicator(typingEl);
+                    
+                    const botResponse = data.response || 'No response received';
+                    addMessage('bot', botResponse);
+                    
+                    // Add bot response to conversation history
+                    conversationHistory.push({
+                        role: 'assistant',
+                        content: botResponse,
+                        timestamp: new Date().toISOString(),
+                        intent: data.intent,
+                        tone: data.tone,
+                        confidence: data.confidence
+                    });
+
+                    console.log(`Intent: ${data.intent}, Tone: ${data.tone}, Confidence: ${data.confidence}%`);
+                } else {
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator(typingEl);
+                addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+            }
+
+            isLoading = false;
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<span>Send</span>';
         }
-    } catch (error) {
-        console.error('Error:', error);
-        removeTypingIndicator(typingEl);
-        addMessage('bot', 'Sorry, I encountered an error. Please try again.');
-    }
-
-    isLoading = false;
-    sendBtn.disabled = false;
-}
 
         function addMessage(type, content) {
             const messageEl = document.createElement('div');
@@ -621,11 +601,17 @@ async function sendMessage() {
             const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             const avatar = type === 'user' ? '👤' : '🤖';
             
+            // Format content for better readability
+            const formattedContent = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+            
             messageEl.innerHTML = `
                 <div class="message-wrapper ${type}">
                     <div class="avatar ${type}">${avatar}</div>
                     <div>
-                        <div class="message-content">${content}</div>
+                        <div class="message-content">${formattedContent}</div>
                     </div>
                 </div>
                 <div class="message-time">${time}</div>
@@ -665,30 +651,39 @@ async function sendMessage() {
             }
         }
 
-        function getDemoResponse(question) {
-            const responses = {
-                'solutions engineer': "Edward would excel as a Solutions Engineer because he uniquely bridges deep technical expertise with exceptional communication skills. His experience building RAG systems and multi-agent AI applications shows he can work with cutting-edge technologies, while his self-taught background demonstrates his ability to explain complex concepts clearly. His work on MindSpar reveals he understands both technical implementation and business value—exactly what Solutions Engineering requires.",
-                
-                'programming': "Edward's programming journey started authentically at 14 with Roblox scripting in Lua, then progressed to Discord bots in JavaScript. This self-directed learning through YouTube tutorials and Stack Overflow gave him exceptional problem-solving skills and adaptability. When he formalized his knowledge at Cornell, this practical foundation made him stand out among peers who only had academic experience.",
-                
-                'problem-solving': "Edward believes in building systems that genuinely solve real problems rather than showcasing technical complexity. He values learning by doing over pure theory and gravitates toward roles where he can bridge technical and business domains. His approach is refreshingly practical—he'd rather find solutions that work for everyone than pursue elegant code that serves no one.",
-                
-                'projects': "Edward's projects showcase both technical sophistication and real-world value. MindSpar, his AI-powered debate platform, uses multi-agent LLM systems to improve online discourse quality. This Personal RAG System demonstrates privacy-aware AI applications. His projects consistently combine advanced technology with user-centered design.",
-                
-                'strengths': "Edward's key strengths include rapid technology adoption, bridging technical-business domains, and practical problem-solving. His self-taught foundation makes him exceptionally good at learning new technologies quickly and explaining complex concepts accessibly. His first-generation college background provides unique perspective and resilience.",
-                
-                'learning': "Edward is a natural self-directed learner who thrives on hands-on experimentation. He prefers building real projects over theoretical study, believing the best insights come from getting stuck and figuring out solutions. This approach has served him well from Roblox scripting to advanced AI systems."
-            };
-
-            const questionLower = question.toLowerCase();
-            for (const [key, response] of Object.entries(responses)) {
-                if (questionLower.includes(key)) {
-                    return `${response}<br><br><em>🎭 Demo response - connect to Edward's RAG backend for real-time answers.</em>`;
-                }
+        // Store conversation history in localStorage (optional persistence)
+        function saveConversationToStorage() {
+            try {
+                localStorage.setItem(`conversation_${sessionId}`, JSON.stringify({
+                    sessionId,
+                    history: conversationHistory,
+                    lastActivity: new Date().toISOString()
+                }));
+            } catch (error) {
+                console.log('Could not save to localStorage:', error);
             }
-
-            return `That's a great question about Edward! I'd love to provide a detailed answer, but I need to be connected to the actual RAG backend to access his complete knowledge base.<br><br><em>🎭 Try asking about his Solutions Engineer fit, programming journey, work philosophy, technical projects, or key strengths.</em>`;
         }
+
+        function loadConversationFromStorage() {
+            try {
+                const saved = localStorage.getItem(`conversation_${sessionId}`);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    conversationHistory = data.history || [];
+                    return true;
+                }
+            } catch (error) {
+                console.log('Could not load from localStorage:', error);
+            }
+            return false;
+        }
+
+        // Auto-save conversation periodically
+        setInterval(() => {
+            if (conversationHistory.length > 0) {
+                saveConversationToStorage();
+            }
+        }, 30000); // Save every 30 seconds
     </script>
 </body>
 </html>
