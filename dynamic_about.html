@@ -27,12 +27,14 @@
             min-height: 90vh;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         /* Header */
         .header {
+            background: white;
             text-align: center;
-            padding: 60px 40px 40px;
+            padding: 30px 40px 20px;
             border-bottom: 2px solid #333;
         }
 
@@ -40,8 +42,8 @@
             display: flex;
             justify-content: center;
             gap: 40px;
-            margin-bottom: 40px;
-            font-size: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
             font-weight: bold;
         }
 
@@ -61,21 +63,33 @@
         }
 
         .title {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 3px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .subtitle {
-            font-size: 16px;
+            font-size: 14px;
             color: #666;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+
+        /* Chat Interface Container */
+        .chat-interface {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
 
         /* Controls */
         .controls {
+            position: sticky;
+            top: 0;
+            z-index: 100;
             background: white;
             padding: 20px 40px;
             border-bottom: 1px solid #ddd;
@@ -336,6 +350,9 @@
 
         /* Input Area */
         .input-area {
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
             background: white;
             border-top: 2px solid #333;
             padding: 30px 40px;
@@ -431,9 +448,9 @@
         @media (max-width: 768px) {
             body { padding: 10px; }
             .container { min-height: 95vh; }
-            .header { padding: 40px 20px 30px; }
-            .title { font-size: 36px; letter-spacing: 2px; }
-            .nav { gap: 20px; flex-wrap: wrap; }
+            .header { padding: 20px 20px 15px; }
+            .title { font-size: 28px; letter-spacing: 2px; }
+            .nav { gap: 20px; flex-wrap: wrap; font-size: 12px; }
             .controls, .chat-area, .input-area { padding-left: 20px; padding-right: 20px; }
             .controls { flex-direction: column; align-items: stretch; }
             .session-info { justify-content: space-between; }
