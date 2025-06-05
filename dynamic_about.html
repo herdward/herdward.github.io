@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask Edward - AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 60px 40px 40px;
+            border-bottom: 2px solid #333;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .nav a {
+            color: #333;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        .nav a.active {
+            text-decoration: underline;
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Controls */
+        .controls {
+            background: white;
+            padding: 20px 40px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 20px;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            border: 2px solid #333;
+            background: white;
+            color: #333;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background: #333;
+            color: white;
+        }
+
+        .toggle-btn.active {
+            background: #333;
+            color: white;
+        }
+
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+
+        .status-dot.online {
+            background: #10b981;
+        }
+
+        .clear-btn {
+            background: white;
+            border: 1px solid #333;
+            padding: 4px 8px;
+            font-family: inherit;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: #333;
+            color: white;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .chat-area::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-area::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 2px;
+        }
+
+        /* Messages */
+        .message {
+            margin-bottom: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message-wrapper {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .message-wrapper.user {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            background: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            border: 1px solid #ddd;
+        }
+
+        .message-wrapper.bot .message-content {
+            background: #f9f9f9;
+            border-left: 3px solid #333;
+        }
+
+        .message-wrapper.user .message-content {
+            background: #333;
+            color: white;
+            border-right: 3px solid #333;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+            margin-left: 55px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .message-wrapper.user .message-time {
+            margin-left: 0;
+            margin-right: 55px;
+            text-align: right;
+        }
+
+        /* System Messages */
+        .system-message {
+            background: #fff3cd;
+            border: 1px solid #f0ad4e;
+            border-left: 4px solid #f0ad4e;
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #856404;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        /* Suggestions */
+        .suggestions {
+            background: #f9f9f9;
+            border: 2px solid #333;
+            border-left: 6px solid #333;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .suggestions h3 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .suggestions-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .suggestion-btn {
+            background: white;
+            border: 1px solid #333;
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .suggestion-btn:hover {
+            background: #333;
+            color: white;
+        }
+
+        .suggestion-btn::before {
+            content: '•';
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Typing Indicator */
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-size: 13px;
+            margin-left: 55px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #666;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Input Area */
+        .input-area {
+            background: white;
+            border-top: 2px solid #333;
+            padding: 30px 40px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            width: 100%;
+        }
+
+        .input-field {
+            width: 100%;
+            min-height: 50px;
+            max-height: 120px;
+            padding: 15px 20px;
+            border: 2px solid #333;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .input-field:focus {
+            border-color: #333;
+            box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+        }
+
+        .send-btn {
+            background: #333;
+            color: white;
+            border: 2px solid #333;
+            padding: 15px 25px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 100px;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: white;
+            color: #333;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-3px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { min-height: 95vh; }
+            .header { padding: 40px 20px 30px; }
+            .title { font-size: 36px; letter-spacing: 2px; }
+            .nav { gap: 20px; flex-wrap: wrap; }
+            .controls, .chat-area, .input-area { padding-left: 20px; padding-right: 20px; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .session-info { justify-content: space-between; }
+            .input-container { flex-direction: column; }
+            .send-btn { width: 100%; }
+            .suggestions { padding: 20px; }
+            .message-content { max-width: 85%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <nav class="nav">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#projects">Projects</a>
+                <a href="#contact" class="active">Contact</a>
+            </nav>
+            <h1 class="title">Ask Edward</h1>
+            <p class="subtitle">Summarized engagements and technical deployments.</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="mode-toggle">
+                <button class="toggle-btn active" data-mode="public">Public Info</button>
+                <button class="toggle-btn" data-mode="private">Full Context</button>
+            </div>
+            <div class="session-info">
+                <div class="status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Connecting...</span>
+                </div>
+                <span id="sessionId">Session: Loading...</span>
+                <button class="clear-btn" onclick="clearConversation()">Clear</button>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area" id="chatArea">
+            <!-- Welcome Message -->
+            <div class="message">
+                <div class="message-wrapper bot">
+                    <div class="avatar bot">AI</div>
+                    <div>
+                        <div class="message-content">
+                            • Hi! I'm Edward's AI assistant.
+                            <br>• I have comprehensive knowledge about his background, technical projects, work philosophy, and career journey. 
+                            <br>• What would you like to know about Edward?
+                        </div>
+                    </div>
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+
+            <!-- Demo Mode Notice (will be added dynamically if backend is offline) -->
+            
+            <!-- Suggestions -->
+            <div class="suggestions" id="suggestions">
+                <h3 id="suggestionsTitle">Popular Questions</h3>
+                <div class="suggestions-grid" id="suggestionsGrid">
+                    <!-- Suggestions will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        class="input-field"
+                        placeholder="Ask me anything about Edward..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                <button id="sendBtn" class="send-btn">
+                    <span>Send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://shrill-bonus-0099.edwardhe0011.workers.dev';
+        
+        // Session Management
+        let sessionId = generateSessionId();
+        let currentMode = 'public';
+        let isLoading = false;
+        let conversationHistory = []; // Store conversation locally
+        let isBackendOnline = false;
+
+        // DOM elements
+        const chatArea = document.getElementById('chatArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const sessionIdDisplay = document.getElementById('sessionId');
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const suggestions = document.getElementById('suggestions');
+        const suggestionsGrid = document.getElementById('suggestionsGrid');
+        const suggestionsTitle = document.getElementById('suggestionsTitle');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            checkBackendStatus();
+            adjustTextareaHeight();
+            updateSessionDisplay();
+            setupSuggestions(); // Initialize suggestions
+        });
+
+        function generateSessionId() {
+            return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+        }
+
+        function updateSessionDisplay() {
+            sessionIdDisplay.textContent = `Session: ${sessionId.split('_')[1]}`;
+        }
+
+        function setupEventListeners() {
+            // Mode toggle
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', () => setMode(btn.dataset.mode));
+            });
+
+            // Send button
+            sendBtn.addEventListener('click', sendMessage);
+
+            // Enter key (Shift+Enter for new line)
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Auto-resize textarea
+            messageInput.addEventListener('input', adjustTextareaHeight);
+        }
+
+        function setupSuggestions() {
+            const onlineSuggestions = [
+                "What makes Edward unique as a candidate?",
+                "Tell me about Edward's technical background",
+                "What's Edward's experience with AI and machine learning?"
+            ];
+
+            const offlineSuggestions = [
+                "Why would Edward be excellent for a Solutions Engineer role?",
+                "How did Edward first get into programming and coding?",
+                "What's Edward's approach to work and problem-solving?",
+                "Tell me about Edward's most impressive technical projects",
+                "What are Edward's key technical strengths?",
+                "How does Edward approach learning new technologies?"
+            ];
+
+            return { onlineSuggestions, offlineSuggestions };
+        }
+
+        function updateSuggestions(isOnline) {
+            const { onlineSuggestions, offlineSuggestions } = setupSuggestions();
+            const suggestionsToShow = isOnline ? onlineSuggestions : offlineSuggestions;
+            
+            // Clear existing suggestions
+            suggestionsGrid.innerHTML = '';
+            
+            // Update title
+            suggestionsTitle.textContent = isOnline ? 'Quick Starts' : 'Popular Questions';
+            
+            // Add new suggestions
+            suggestionsToShow.forEach(suggestion => {
+                const btn = document.createElement('button');
+                btn.className = 'suggestion-btn';
+                btn.textContent = suggestion;
+                btn.addEventListener('click', () => {
+                    messageInput.value = suggestion;
+                    adjustTextareaHeight();
+                    sendMessage();
+                });
+                suggestionsGrid.appendChild(btn);
+            });
+        }
+
+        function hideSuggestionsAfterFirstMessage() {
+            if (conversationHistory.filter(msg => msg.role === 'user').length > 0) {
+                suggestions.style.display = 'none';
+            }
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            toggleBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            addSystemMessage(`Switched to ${mode === 'public' ? 'Public Information' : 'Full Context'} mode`);
+        }
+
+        function adjustTextareaHeight() {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+        }
+
+        function clearConversation() {
+            if (confirm('Clear conversation history?')) {
+                conversationHistory = [];
+                sessionId = generateSessionId();
+                updateSessionDisplay();
+                
+                // Clear chat area but keep initial message
+                const initialMessage = chatArea.children[0];
+                chatArea.innerHTML = '';
+                chatArea.appendChild(initialMessage);
+                
+                // Re-add demo notice and suggestions if backend is offline
+                if (!isBackendOnline) {
+                    addDemoModeNotice();
+                }
+                updateSuggestions(isBackendOnline);
+                suggestions.style.display = 'block';
+                
+                addSystemMessage('Conversation cleared. New session started.');
+            }
+        }
+
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`, { timeout: 3000 });
+                if (response.ok) {
+                    isBackendOnline = true;
+                    statusDot.classList.add('online');
+                    statusText.textContent = 'Connected';
+                } else {
+                    throw new Error('Backend offline');
+                }
+            } catch (error) {
+                isBackendOnline = false;
+                statusDot.classList.remove('online');
+                statusText.textContent = 'Demo Mode';
+                addDemoModeNotice();
+            }
+            
+            // Update suggestions based on backend status
+            updateSuggestions(isBackendOnline);
+        }
+
+        function addDemoModeNotice() {
+            const demoNotice = document.createElement('div');
+            demoNotice.className = 'system-message';
+            demoNotice.textContent = '⚠ Demo Mode: Backend offline. Try the suggestions below to see sample responses!';
+            
+            // Insert after welcome message
+            const welcomeMessage = chatArea.children[0];
+            chatArea.insertBefore(demoNotice, welcomeMessage.nextSibling);
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || isLoading) return;
+
+            isLoading = true;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<div style="width:12px;height:12px;border:2px solid rgba(255,255,255,0.3);border-top:2px solid white;border-radius:50%;animation:spin 1s linear infinite;"></div>';
+
+            // Add user message
+            addMessage('user', message);
+            messageInput.value = '';
+            adjustTextareaHeight();
+
+            // Hide suggestions after first message
+            hideSuggestionsAfterFirstMessage();
+
+            // Add to conversation history
+            conversationHistory.push({
+                role: 'user',
+                content: message,
+                timestamp: new Date().toISOString()
+            });
+
+            // Add typing indicator
+            const typingEl = addTypingIndicator();
+
+            try {
+                if (isBackendOnline) {
+                    console.log('Sending request with history:', conversationHistory.length, 'messages');
+                    
+                    // Prepare conversation history for API (last 10 messages to avoid token limits)
+                    const recentHistory = conversationHistory.slice(-10).map(msg => ({
+                        role: msg.role,
+                        content: msg.content
+                    }));
+
+                    const response = await fetch(`${API_BASE_URL}/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            question: message,
+                            mode: currentMode,
+                            session_id: sessionId,
+                            conversation_history: recentHistory
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        removeTypingIndicator(typingEl);
+                        
+                        const botResponse = data.response || 'No response received';
+                        addMessage('bot', botResponse);
+                        
+                        // Add bot response to conversation history
+                        conversationHistory.push({
+                            role: 'assistant',
+                            content: botResponse,
+                            timestamp: new Date().toISOString(),
+                            intent: data.intent,
+                            tone: data.tone,
+                            confidence: data.confidence
+                        });
+
+                        console.log(`Intent: ${data.intent}, Tone: ${data.tone}, Confidence: ${data.confidence}%`);
+                    } else {
+                        throw new Error(`API request failed: ${response.status}`);
+                    }
+                } else {
+                    // Demo mode - use local responses
+                    removeTypingIndicator(typingEl);
+                    const demoResponse = getDemoResponse(message);
+                    addMessage('bot', demoResponse);
+                    
+                    // Add demo response to conversation history
+                    conversationHistory.push({
+                        role: 'assistant',
+                        content: demoResponse,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator(typingEl);
+                
+                if (isBackendOnline) {
+                    addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+                } else {
+                    const demoResponse = getDemoResponse(message);
+                    addMessage('bot', demoResponse);
+                    
+                    conversationHistory.push({
+                        role: 'assistant',
+                        content: demoResponse,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            }
+
+            isLoading = false;
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<span>Send</span>';
+        }
+
+        function addMessage(type, content) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const avatar = type === 'user' ? 'YOU' : 'AI';
+            
+            // Format content for better readability and portfolio style
+            let formattedContent = content;
+            if (type === 'bot') {
+                // Convert markdown-style formatting to bullet points for consistency
+                formattedContent = content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>')
+                    // Convert sentences to bullet points if they don't already start with bullets
+                    .split('.')
+                    .filter(sentence => sentence.trim().length > 0)
+                    .map(sentence => sentence.trim().startsWith('•') ? sentence.trim() : `• ${sentence.trim()}`)
+                    .join('.<br>');
+                
+                if (!formattedContent.endsWith('.')) {
+                    formattedContent += '.';
+                }
+            } else {
+                formattedContent = content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+            }
+            
+            messageEl.innerHTML = `
+                <div class="message-wrapper ${type}">
+                    <div class="avatar ${type}">${avatar}</div>
+                    <div>
+                        <div class="message-content">${formattedContent}</div>
+                    </div>
+                </div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            chatArea.appendChild(messageEl);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addSystemMessage(content) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'system-message';
+            messageEl.textContent = content;
+            chatArea.appendChild(messageEl);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const typingEl = document.createElement('div');
+            typingEl.className = 'typing';
+            typingEl.innerHTML = `
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>AI is thinking...</span>
+            `;
+            chatArea.appendChild(typingEl);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            return typingEl;
+        }
+
+        function removeTypingIndicator(el) {
+            if (el && el.parentNode) {
+                el.parentNode.removeChild(el);
+            }
+        }
+
+        function getDemoResponse(question) {
+            const responses = {
+                'solutions engineer': "• Edward would excel as a Solutions Engineer because he uniquely bridges deep technical expertise with exceptional communication skills.<br>• His experience building RAG systems and multi-agent AI applications shows he can work with cutting-edge technologies.<br>• His self-taught background demonstrates his ability to explain complex concepts clearly.<br>• His work on MindSpar reveals he understands both technical implementation and business value—exactly what Solutions Engineering requires.",
+                
+                'programming': "• Edward's programming journey started authentically at 14 with Roblox scripting in Lua, then progressed to Discord bots in JavaScript.<br>• This self-directed learning through YouTube tutorials and Stack Overflow gave him exceptional problem-solving skills and adaptability.<br>• When he formalized his knowledge at Cornell, this practical foundation made him stand out among peers who only had academic experience.",
+                
+                'problem-solving': "• Edward believes in building systems that genuinely solve real problems rather than showcasing technical complexity.<br>• He values learning by doing over pure theory and gravitates toward roles where he can bridge technical and business domains.<br>• His approach is refreshingly practical—he'd rather find solutions that work for everyone than pursue elegant code that serves no one.",
+                
+                'projects': "• Edward's projects showcase both technical sophistication and real-world value.<br>• MindSpar, his AI-powered debate platform, uses multi-agent LLM systems to improve online discourse quality.<br>• This Personal RAG System demonstrates privacy-aware AI applications.<br>• His projects consistently combine advanced technology with user-centered design.",
+                
+                'strengths': "• Edward's key strengths include rapid technology adoption, bridging technical-business domains, and practical problem-solving.<br>• His self-taught foundation makes him exceptionally good at learning new technologies quickly and explaining complex concepts accessibly.<br>• His first-generation college background provides unique perspective and resilience.",
+                
+                'learning': "• Edward is a natural self-directed learner who thrives on hands-on experimentation.<br>• He prefers building real projects over theoretical study, believing the best insights come from getting stuck and figuring out solutions.<br>• This approach has served him well from Roblox scripting to advanced AI systems."
+            };
+
+            const questionLower = question.toLowerCase();
+            for (const [key, response] of Object.entries(responses)) {
+                if (questionLower.includes(key)) {
+                    return `${response}<br><br><em>⚠ Demo response - connect to Edward's RAG backend for real-time answers.</em>`;
+                }
+            }
+
+            return `• That's a great question about Edward! I'd love to provide a detailed answer, but I need to be connected to the actual RAG backend to access his complete knowledge base.<br><br><em>⚠ Try asking about his Solutions Engineer fit, programming journey, work philosophy, technical projects, or key strengths.</em>`;
+        }
+
+        // Store conversation history in localStorage (optional persistence)
+        function saveConversationToStorage() {
+            try {
+                localStorage.setItem(`conversation_${sessionId}`, JSON.stringify({
+                    sessionId,
+                    history: conversationHistory,
+                    lastActivity: new Date().toISOString()
+                }));
+            } catch (error) {
+                console.log('Could not save to localStorage:', error);
+            }
+        }
+
+        function loadConversationFromStorage() {
+            try {
+                const saved = localStorage.getItem(`conversation_${sessionId}`);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    conversationHistory = data.history || [];
+                    return true;
+                }
+            } catch (error) {
+                console.log('Could not load from localStorage:', error);
+            }
+            return false;
+        }
+
+        // Auto-save conversation periodically
+        setInterval(() => {
+            if (conversationHistory.length > 0) {
+                saveConversationToStorage();
+            }
+        }, 30000); // Save every 30 seconds
+    </script>
+</body>
+</html>
