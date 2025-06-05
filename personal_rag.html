@@ -52,6 +52,7 @@
             min-height: 600px;
         }
 
+        /* Header */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -71,6 +72,7 @@
             font-weight: 400;
         }
 
+        /* Controls */
         .controls {
             background: var(--bg-white);
             padding: 16px 28px;
@@ -105,6 +107,14 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
         .status {
             display: flex;
             align-items: center;
@@ -124,14 +134,6 @@
             background: #10b981;
         }
 
-        .session-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
         .clear-btn {
             background: var(--bg-light);
             border: 1px solid var(--border);
@@ -146,6 +148,7 @@
             background: var(--border);
         }
 
+        /* Chat Area */
         .chat-area {
             flex: 1;
             padding: 24px 28px;
@@ -166,6 +169,7 @@
             border-radius: 2px;
         }
 
+        /* Messages */
         .message {
             margin-bottom: 20px;
             animation: fadeIn 0.3s ease;
@@ -235,6 +239,7 @@
             text-align: right;
         }
 
+        /* System Messages */
         .system-message {
             background: #fef3c7;
             border: 1px solid #f59e0b;
@@ -246,6 +251,59 @@
             text-align: center;
         }
 
+        /* Suggestions */
+        .suggestions {
+            background: var(--bg-gray);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .suggestions h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestions-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .suggestion-btn {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestion-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .suggestion-btn::before {
+            content: '💭';
+            font-size: 0.875rem;
+        }
+
+        /* Typing Indicator */
         .typing {
             display: flex;
             align-items: center;
@@ -271,6 +329,7 @@
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
+        /* Input Area */
         .input-area {
             background: var(--bg-white);
             border-top: 1px solid var(--border-light);
@@ -281,11 +340,13 @@
             display: flex;
             gap: 12px;
             align-items: flex-end;
+            width: 100%;
         }
 
         .input-wrapper {
             flex: 1;
             position: relative;
+            width: 100%;
         }
 
         .input-field {
@@ -301,6 +362,7 @@
             outline: none;
             transition: border-color 0.2s;
             background: var(--bg-white);
+            box-sizing: border-box;
         }
 
         .input-field:focus {
@@ -327,6 +389,7 @@
             gap: 6px;
             min-width: 80px;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .send-btn:hover:not(:disabled) {
@@ -341,6 +404,7 @@
             transform: none;
         }
 
+        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -356,6 +420,7 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Responsive */
         @media (max-width: 640px) {
             body { padding: 10px; }
             .container { height: 95vh; border-radius: 12px; }
@@ -363,16 +428,22 @@
             .controls { flex-direction: column; gap: 12px; align-items: stretch; }
             .input-container { flex-direction: column; }
             .send-btn { width: 100%; }
+            .session-info {
+                justify-content: space-between;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
             <h1>Ask Edward</h1>
             <p>AI assistant with deep knowledge of Edward's background, projects, and expertise</p>
         </div>
 
+        <!-- Controls -->
         <div class="controls">
             <div class="mode-toggle">
                 <button class="toggle-btn active" data-mode="public">Public Info</button>
@@ -388,7 +459,9 @@
             </div>
         </div>
 
+        <!-- Chat Area -->
         <div class="chat-area" id="chatArea">
+            <!-- Welcome Message -->
             <div class="message">
                 <div class="message-wrapper bot">
                     <div class="avatar bot">🤖</div>
@@ -400,8 +473,19 @@
                 </div>
                 <div class="message-time">Just now</div>
             </div>
+
+            <!-- Demo Mode Notice (will be added dynamically if backend is offline) -->
+            
+            <!-- Suggestions -->
+            <div class="suggestions" id="suggestions">
+                <h3 id="suggestionsTitle">💡 Popular questions:</h3>
+                <div class="suggestions-grid" id="suggestionsGrid">
+                    <!-- Suggestions will be populated dynamically -->
+                </div>
+            </div>
         </div>
 
+        <!-- Input Area -->
         <div class="input-area">
             <div class="input-container">
                 <div class="input-wrapper">
@@ -421,14 +505,15 @@
 
     <script>
         // Configuration
-        const API_BASE_URL = 'http://localhost:8000'; // Update for production: 'http://your-hetzner-ip:8000'
+        const API_BASE_URL = 'https://shrill-bonus-0099.edwardhe0011.workers.dev';
         
         // Session Management
         let sessionId = generateSessionId();
         let currentMode = 'public';
         let isLoading = false;
         let conversationHistory = []; // Store conversation locally
-        
+        let isBackendOnline = false;
+
         // DOM elements
         const chatArea = document.getElementById('chatArea');
         const messageInput = document.getElementById('messageInput');
@@ -437,6 +522,9 @@
         const statusText = document.getElementById('statusText');
         const sessionIdDisplay = document.getElementById('sessionId');
         const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const suggestions = document.getElementById('suggestions');
+        const suggestionsGrid = document.getElementById('suggestionsGrid');
+        const suggestionsTitle = document.getElementById('suggestionsTitle');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -444,6 +532,7 @@
             checkBackendStatus();
             adjustTextareaHeight();
             updateSessionDisplay();
+            setupSuggestions(); // Initialize suggestions
         });
 
         function generateSessionId() {
@@ -475,6 +564,55 @@
             messageInput.addEventListener('input', adjustTextareaHeight);
         }
 
+        function setupSuggestions() {
+            const onlineSuggestions = [
+                "What makes Edward unique as a candidate?",
+                "Tell me about Edward's technical background",
+                "What's Edward's experience with AI and machine learning?"
+            ];
+
+            const offlineSuggestions = [
+                "Why would Edward be excellent for a Solutions Engineer role?",
+                "How did Edward first get into programming and coding?",
+                "What's Edward's approach to work and problem-solving?",
+                "Tell me about Edward's most impressive technical projects",
+                "What are Edward's key technical strengths?",
+                "How does Edward approach learning new technologies?"
+            ];
+
+            return { onlineSuggestions, offlineSuggestions };
+        }
+
+        function updateSuggestions(isOnline) {
+            const { onlineSuggestions, offlineSuggestions } = setupSuggestions();
+            const suggestionsToShow = isOnline ? onlineSuggestions : offlineSuggestions;
+            
+            // Clear existing suggestions
+            suggestionsGrid.innerHTML = '';
+            
+            // Update title
+            suggestionsTitle.textContent = isOnline ? '💡 Quick starts:' : '💡 Popular questions:';
+            
+            // Add new suggestions
+            suggestionsToShow.forEach(suggestion => {
+                const btn = document.createElement('button');
+                btn.className = 'suggestion-btn';
+                btn.textContent = suggestion;
+                btn.addEventListener('click', () => {
+                    messageInput.value = suggestion;
+                    adjustTextareaHeight();
+                    sendMessage();
+                });
+                suggestionsGrid.appendChild(btn);
+            });
+        }
+
+        function hideSuggestionsAfterFirstMessage() {
+            if (conversationHistory.filter(msg => msg.role === 'user').length > 0) {
+                suggestions.style.display = 'none';
+            }
+        }
+
         function setMode(mode) {
             currentMode = mode;
             toggleBtns.forEach(btn => {
@@ -499,6 +637,13 @@
                 chatArea.innerHTML = '';
                 chatArea.appendChild(initialMessage);
                 
+                // Re-add demo notice and suggestions if backend is offline
+                if (!isBackendOnline) {
+                    addDemoModeNotice();
+                }
+                updateSuggestions(isBackendOnline);
+                suggestions.style.display = 'block';
+                
                 addSystemMessage('Conversation cleared. New session started.');
             }
         }
@@ -507,16 +652,31 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/health`, { timeout: 3000 });
                 if (response.ok) {
+                    isBackendOnline = true;
                     statusDot.classList.add('online');
                     statusText.textContent = 'Connected';
                 } else {
                     throw new Error('Backend offline');
                 }
             } catch (error) {
+                isBackendOnline = false;
                 statusDot.classList.remove('online');
                 statusText.textContent = 'Demo Mode';
-                addSystemMessage('⚠️ Demo Mode: Backend offline. Try connecting to see real responses!');
+                addDemoModeNotice();
             }
+            
+            // Update suggestions based on backend status
+            updateSuggestions(isBackendOnline);
+        }
+
+        function addDemoModeNotice() {
+            const demoNotice = document.createElement('div');
+            demoNotice.className = 'system-message';
+            demoNotice.textContent = '⚠️ Demo Mode: Backend offline. Try the suggestions below to see sample responses!';
+            
+            // Insert after welcome message
+            const welcomeMessage = chatArea.children[0];
+            chatArea.insertBefore(demoNotice, welcomeMessage.nextSibling);
         }
 
         async function sendMessage() {
@@ -532,6 +692,9 @@
             messageInput.value = '';
             adjustTextareaHeight();
 
+            // Hide suggestions after first message
+            hideSuggestionsAfterFirstMessage();
+
             // Add to conversation history
             conversationHistory.push({
                 role: 'user',
@@ -543,50 +706,76 @@
             const typingEl = addTypingIndicator();
 
             try {
-                console.log('Sending request with history:', conversationHistory.length, 'messages');
-                
-                // Prepare conversation history for API (last 10 messages to avoid token limits)
-                const recentHistory = conversationHistory.slice(-10).map(msg => ({
-                    role: msg.role,
-                    content: msg.content
-                }));
-
-                const response = await fetch(`${API_BASE_URL}/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        question: message,
-                        mode: currentMode,
-                        session_id: sessionId,
-                        conversation_history: recentHistory
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    removeTypingIndicator(typingEl);
+                if (isBackendOnline) {
+                    console.log('Sending request with history:', conversationHistory.length, 'messages');
                     
-                    const botResponse = data.response || 'No response received';
-                    addMessage('bot', botResponse);
-                    
-                    // Add bot response to conversation history
-                    conversationHistory.push({
-                        role: 'assistant',
-                        content: botResponse,
-                        timestamp: new Date().toISOString(),
-                        intent: data.intent,
-                        tone: data.tone,
-                        confidence: data.confidence
+                    // Prepare conversation history for API (last 10 messages to avoid token limits)
+                    const recentHistory = conversationHistory.slice(-10).map(msg => ({
+                        role: msg.role,
+                        content: msg.content
+                    }));
+
+                    const response = await fetch(`${API_BASE_URL}/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            question: message,
+                            mode: currentMode,
+                            session_id: sessionId,
+                            conversation_history: recentHistory
+                        })
                     });
 
-                    console.log(`Intent: ${data.intent}, Tone: ${data.tone}, Confidence: ${data.confidence}%`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        removeTypingIndicator(typingEl);
+                        
+                        const botResponse = data.response || 'No response received';
+                        addMessage('bot', botResponse);
+                        
+                        // Add bot response to conversation history
+                        conversationHistory.push({
+                            role: 'assistant',
+                            content: botResponse,
+                            timestamp: new Date().toISOString(),
+                            intent: data.intent,
+                            tone: data.tone,
+                            confidence: data.confidence
+                        });
+
+                        console.log(`Intent: ${data.intent}, Tone: ${data.tone}, Confidence: ${data.confidence}%`);
+                    } else {
+                        throw new Error(`API request failed: ${response.status}`);
+                    }
                 } else {
-                    throw new Error(`API request failed: ${response.status}`);
+                    // Demo mode - use local responses
+                    removeTypingIndicator(typingEl);
+                    const demoResponse = getDemoResponse(message);
+                    addMessage('bot', demoResponse);
+                    
+                    // Add demo response to conversation history
+                    conversationHistory.push({
+                        role: 'assistant',
+                        content: demoResponse,
+                        timestamp: new Date().toISOString()
+                    });
                 }
             } catch (error) {
                 console.error('Error:', error);
                 removeTypingIndicator(typingEl);
-                addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+                
+                if (isBackendOnline) {
+                    addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+                } else {
+                    const demoResponse = getDemoResponse(message);
+                    addMessage('bot', demoResponse);
+                    
+                    conversationHistory.push({
+                        role: 'assistant',
+                        content: demoResponse,
+                        timestamp: new Date().toISOString()
+                    });
+                }
             }
 
             isLoading = false;
@@ -649,6 +838,31 @@
             if (el && el.parentNode) {
                 el.parentNode.removeChild(el);
             }
+        }
+
+        function getDemoResponse(question) {
+            const responses = {
+                'solutions engineer': "Edward would excel as a Solutions Engineer because he uniquely bridges deep technical expertise with exceptional communication skills. His experience building RAG systems and multi-agent AI applications shows he can work with cutting-edge technologies, while his self-taught background demonstrates his ability to explain complex concepts clearly. His work on MindSpar reveals he understands both technical implementation and business value—exactly what Solutions Engineering requires.",
+                
+                'programming': "Edward's programming journey started authentically at 14 with Roblox scripting in Lua, then progressed to Discord bots in JavaScript. This self-directed learning through YouTube tutorials and Stack Overflow gave him exceptional problem-solving skills and adaptability. When he formalized his knowledge at Cornell, this practical foundation made him stand out among peers who only had academic experience.",
+                
+                'problem-solving': "Edward believes in building systems that genuinely solve real problems rather than showcasing technical complexity. He values learning by doing over pure theory and gravitates toward roles where he can bridge technical and business domains. His approach is refreshingly practical—he'd rather find solutions that work for everyone than pursue elegant code that serves no one.",
+                
+                'projects': "Edward's projects showcase both technical sophistication and real-world value. MindSpar, his AI-powered debate platform, uses multi-agent LLM systems to improve online discourse quality. This Personal RAG System demonstrates privacy-aware AI applications. His projects consistently combine advanced technology with user-centered design.",
+                
+                'strengths': "Edward's key strengths include rapid technology adoption, bridging technical-business domains, and practical problem-solving. His self-taught foundation makes him exceptionally good at learning new technologies quickly and explaining complex concepts accessibly. His first-generation college background provides unique perspective and resilience.",
+                
+                'learning': "Edward is a natural self-directed learner who thrives on hands-on experimentation. He prefers building real projects over theoretical study, believing the best insights come from getting stuck and figuring out solutions. This approach has served him well from Roblox scripting to advanced AI systems."
+            };
+
+            const questionLower = question.toLowerCase();
+            for (const [key, response] of Object.entries(responses)) {
+                if (questionLower.includes(key)) {
+                    return `${response}<br><br><em>🎭 Demo response - connect to Edward's RAG backend for real-time answers.</em>`;
+                }
+            }
+
+            return `That's a great question about Edward! I'd love to provide a detailed answer, but I need to be connected to the actual RAG backend to access his complete knowledge base.<br><br><em>🎭 Try asking about his Solutions Engineer fit, programming journey, work philosophy, technical projects, or key strengths.</em>`;
         }
 
         // Store conversation history in localStorage (optional persistence)
