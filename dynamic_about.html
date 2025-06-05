@@ -12,68 +12,75 @@
         }
 
         body {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
+            font-family: 'Roboto Mono', monospace;
+            color: #222;
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
-            min-height: 90vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
+        }
+
+        /* Navigation */
+        nav {
+            padding: 1rem 0;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            font-family: 'Roboto Mono', monospace;
+            color: #222;
+            font-weight: 600;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        nav ul li a.active {
+            text-decoration: underline;
         }
 
         /* Header */
         .header {
             background: white;
             text-align: center;
-            padding: 30px 40px 20px;
-            border-bottom: 2px solid #333;
+            padding: 0 1rem 1rem;
         }
 
-        .nav {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .nav a {
-            color: #333;
-            text-decoration: none;
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid #111;
+            padding-bottom: 0.5rem;
+            text-align: center;
+            margin-top: 2rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .nav a:hover {
-            text-decoration: underline;
-        }
-
-        .nav a.active {
-            text-decoration: underline;
-        }
-
-        .title {
-            font-size: 36px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 15px;
+            font-weight: 600;
+            color: #111;
         }
 
         .subtitle {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
+            margin-top: 1rem;
+            line-height: 1.6;
+            color: #222;
         }
 
         /* Chat Interface Container */
@@ -81,8 +88,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            height: calc(100vh - 200px); /* Fixed height for proper scrolling */
             position: relative;
-            overflow: hidden;
         }
 
         /* Controls */
@@ -91,63 +98,63 @@
             top: 0;
             z-index: 100;
             background: white;
-            padding: 20px 40px;
-            border-bottom: 1px solid #ddd;
+            padding: 1rem;
+            border-bottom: 1px solid #ccc;
+            border-top: 1px solid #ccc;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 1rem;
+            flex-shrink: 0;
         }
 
         .mode-toggle {
             display: flex;
-            gap: 20px;
+            gap: 1rem;
         }
 
         .toggle-btn {
-            padding: 8px 16px;
-            border: 2px solid #333;
+            padding: 0.5rem 1rem;
+            border: 1px solid #222;
             background: white;
-            color: #333;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: #222;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            border-radius: 3px;
         }
 
         .toggle-btn:hover {
-            background: #333;
+            background: #222;
             color: white;
         }
 
         .toggle-btn.active {
-            background: #333;
+            background: #222;
             color: white;
         }
 
         .session-info {
             display: flex;
             align-items: center;
-            gap: 20px;
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            font-family: 'Roboto Mono', monospace;
         }
 
         .status {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #ef4444;
         }
@@ -158,27 +165,29 @@
 
         .clear-btn {
             background: white;
-            border: 1px solid #333;
-            padding: 4px 8px;
-            font-family: inherit;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            border: 1px solid #222;
+            padding: 0.3rem 0.6rem;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            border-radius: 3px;
         }
 
         .clear-btn:hover {
-            background: #333;
+            background: #222;
             color: white;
         }
 
         /* Chat Area */
         .chat-area {
             flex: 1;
-            padding: 40px;
+            padding: 2rem 1rem;
             overflow-y: auto;
             background: white;
+            line-height: 1.8;
+            height: 0; /* Force proper flex behavior */
         }
 
         .chat-area::-webkit-scrollbar {
@@ -211,48 +220,49 @@
         }
 
         .avatar {
-            width: 40px;
-            height: 40px;
-            border: 2px solid #333;
+            width: 32px;
+            height: 32px;
+            border: 1px solid #222;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 0.7rem;
             flex-shrink: 0;
             background: white;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 600;
         }
 
         .message-content {
             max-width: 70%;
-            padding: 15px 20px;
-            font-size: 14px;
+            padding: 1rem;
+            font-size: 0.9rem;
             line-height: 1.6;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
         }
 
         .message-wrapper.bot .message-content {
             background: #f9f9f9;
-            border-left: 3px solid #333;
+            border-left: 2px solid #111;
         }
 
         .message-wrapper.user .message-content {
-            background: #333;
+            background: #222;
             color: white;
-            border-right: 3px solid #333;
+            border-right: 2px solid #111;
         }
 
         .message-time {
-            font-size: 11px;
-            color: #999;
-            margin-top: 8px;
-            margin-left: 55px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 0.7rem;
+            color: #777;
+            margin-top: 0.5rem;
+            margin-left: 47px;
+            font-family: 'Roboto Mono', monospace;
         }
 
         .message-wrapper.user .message-time {
             margin-left: 0;
-            margin-right: 55px;
+            margin-right: 47px;
             text-align: right;
         }
 
@@ -266,57 +276,57 @@
             font-size: 13px;
             color: #856404;
             text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             font-weight: bold;
         }
 
         /* Suggestions */
         .suggestions {
             background: #f9f9f9;
-            border: 2px solid #333;
-            border-left: 6px solid #333;
-            padding: 30px;
-            margin: 30px 0;
+            border: 1px solid #ccc;
+            border-left: 4px solid #111;
+            padding: 2rem 1rem;
+            margin: 2rem 0;
         }
 
         .suggestions h3 {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 1rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            border-bottom: 1px solid #111;
+            padding-bottom: 0.3rem;
         }
 
         .suggestions-grid {
             display: grid;
-            gap: 12px;
+            gap: 0.5rem;
         }
 
         .suggestion-btn {
             background: white;
-            border: 1px solid #333;
-            padding: 15px 20px;
+            border: 1px solid #222;
+            padding: 0.8rem 1rem;
             text-align: left;
-            font-size: 13px;
-            color: #333;
+            font-size: 0.9rem;
+            color: #222;
             cursor: pointer;
             transition: all 0.2s;
-            font-family: inherit;
+            font-family: 'Roboto Mono', monospace;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.5rem;
+            border-radius: 3px;
         }
 
         .suggestion-btn:hover {
-            background: #333;
+            background: #222;
             color: white;
         }
 
         .suggestion-btn::before {
             content: '•';
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: bold;
         }
 
@@ -325,11 +335,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #666;
-            font-size: 13px;
-            margin-left: 55px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: #777;
+            font-size: 0.8rem;
+            margin-left: 47px;
+            font-family: 'Roboto Mono', monospace;
         }
 
         .typing-dots {
@@ -341,7 +350,7 @@
             width: 4px;
             height: 4px;
             border-radius: 50%;
-            background: #666;
+            background: #777;
             animation: typing 1.4s infinite ease-in-out;
         }
 
@@ -354,13 +363,14 @@
             bottom: 0;
             z-index: 100;
             background: white;
-            border-top: 2px solid #333;
-            padding: 30px 40px;
+            border-top: 1px solid #ccc;
+            padding: 1rem;
+            flex-shrink: 0;
         }
 
         .input-container {
             display: flex;
-            gap: 15px;
+            gap: 0.5rem;
             align-items: flex-end;
             width: 100%;
         }
@@ -373,54 +383,53 @@
 
         .input-field {
             width: 100%;
-            min-height: 50px;
-            max-height: 120px;
-            padding: 15px 20px;
-            border: 2px solid #333;
-            font-size: 14px;
-            font-family: inherit;
+            min-height: 40px;
+            max-height: 100px;
+            padding: 0.5rem;
+            border: 1px solid #222;
+            font-size: 0.9rem;
+            font-family: 'Roboto Mono', monospace;
+            color: #222;
             resize: none;
             outline: none;
             transition: border-color 0.2s;
             background: white;
             box-sizing: border-box;
+            border-radius: 3px;
         }
 
         .input-field:focus {
-            border-color: #333;
-            box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
+            border-color: #111;
         }
 
         .input-field::placeholder {
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 12px;
+            color: #777;
+            font-size: 0.8rem;
+            font-family: 'Roboto Mono', monospace;
         }
 
         .send-btn {
-            background: #333;
+            background: #222;
             color: white;
-            border: 2px solid #333;
-            padding: 15px 25px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            border: 1px solid #222;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            font-family: inherit;
+            font-family: 'Roboto Mono', monospace;
             display: flex;
             align-items: center;
-            gap: 8px;
-            min-width: 100px;
+            gap: 0.5rem;
+            min-width: 80px;
             justify-content: center;
             flex-shrink: 0;
+            border-radius: 3px;
+            text-transform: none;
         }
 
         .send-btn:hover:not(:disabled) {
-            background: white;
-            color: #333;
+            background: #333;
         }
 
         .send-btn:disabled {
@@ -446,18 +455,18 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            body { padding: 10px; }
             .container { min-height: 95vh; }
             .header { padding: 20px 20px 15px; }
-            .title { font-size: 28px; letter-spacing: 2px; }
-            .nav { gap: 20px; flex-wrap: wrap; font-size: 12px; }
-            .controls, .chat-area, .input-area { padding-left: 20px; padding-right: 20px; }
+            h1 { font-size: 1.5rem; }
+            nav ul { gap: 1rem; flex-wrap: wrap; font-size: 0.9rem; }
+            .controls, .chat-area, .input-area { padding-left: 1rem; padding-right: 1rem; }
             .controls { flex-direction: column; align-items: stretch; }
             .session-info { justify-content: space-between; }
             .input-container { flex-direction: column; }
             .send-btn { width: 100%; }
-            .suggestions { padding: 20px; }
+            .suggestions { padding: 1rem; }
             .message-content { max-width: 85%; }
+            .chat-interface { height: calc(100vh - 150px); }
         }
     </style>
 </head>
@@ -465,74 +474,80 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <nav class="nav">
-                <a href="index.html">Home</a>
-                <a href="about.html">About</a>
-                <a href="projects.html">Projects</a>
-                <a href="contact.html" class="active">Contact</a>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#contact" class="active">Contact</a></li>
+                </ul>
             </nav>
-            <h1 class="title">Ask Edward</h1>
-            <p class="subtitle">Summarized engagements and technical deployments.</p>
+            <h1>Dynamic About Me</h1>
+            <p class="subtitle"><i>Delve beyond the static info.</i></p> 
+            <p>Dev Note: June 5th 2025, this has very minimal information.</p>
+            <p>Quality of responses will get better.</p>
         </div>
 
-        <!-- Controls -->
-        <div class="controls">
-            <div class="mode-toggle">
-                <button class="toggle-btn active" data-mode="public">Public Info</button>
-                <button class="toggle-btn" data-mode="private">Full Context</button>
-            </div>
-            <div class="session-info">
-                <div class="status">
-                    <div class="status-dot" id="statusDot"></div>
-                    <span id="statusText">Connecting...</span>
+        <!-- Chat Interface -->
+        <div class="chat-interface">
+            <!-- Controls -->
+            <div class="controls">
+                <div class="mode-toggle">
+                    <button class="toggle-btn active" data-mode="public">Public Info</button>
+                    <button class="toggle-btn" data-mode="private">Full Context</button>
                 </div>
-                <span id="sessionId">Session: Loading...</span>
-                <button class="clear-btn" onclick="clearConversation()">Clear</button>
+                <div class="session-info">
+                    <div class="status">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="statusText">Connecting to backend...</span>
+                    </div>
+                    <span id="sessionId">Session: Loading...</span>
+                    <button class="clear-btn" onclick="clearConversation()">Clear</button>
+                </div>
             </div>
-        </div>
 
-        <!-- Chat Area -->
-        <div class="chat-area" id="chatArea">
-            <!-- Welcome Message -->
-            <div class="message">
-                <div class="message-wrapper bot">
-                    <div class="avatar bot">AI</div>
-                    <div>
-                        <div class="message-content">
-                            • Hi! I'm Edward's AI assistant.
-                            <br>• I have comprehensive knowledge about his background, technical projects, work philosophy, and career journey. 
-                            <br>• What would you like to know about Edward?
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <!-- Welcome Message -->
+                <div class="message">
+                    <div class="message-wrapper bot">
+                        <div class="avatar bot">AI</div>
+                        <div>
+                            <div class="message-content">
+                                • Hi! I'm Edward's AI assistant. <br>
+                                • I have comprehensive knowledge about his background, technical projects, work philosophy, and career journey. <br>
+                                • What would you like to know about Edward?
+
+                            </div>
                         </div>
                     </div>
+                    <div class="message-time">Just now</div>
                 </div>
-                <div class="message-time">Just now</div>
+
+                <!-- Suggestions -->
+                <div class="suggestions" id="suggestions">
+                    <h3 id="suggestionsTitle">Popular Questions</h3>
+                    <div class="suggestions-grid" id="suggestionsGrid">
+                        <!-- Suggestions will be populated dynamically -->
+                    </div>
+                </div>
             </div>
 
-            <!-- Demo Mode Notice (will be added dynamically if backend is offline) -->
-            
-            <!-- Suggestions -->
-            <div class="suggestions" id="suggestions">
-                <h3 id="suggestionsTitle">Popular Questions</h3>
-                <div class="suggestions-grid" id="suggestionsGrid">
-                    <!-- Suggestions will be populated dynamically -->
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="messageInput" 
+                            class="input-field"
+                            placeholder="Ask me anything about Edward..."
+                            rows="1"
+                        ></textarea>
+                    </div>
+                    <button id="sendBtn" class="send-btn">
+                        <span>SEND</span>
+                    </button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="input-area">
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <textarea 
-                        id="messageInput" 
-                        class="input-field"
-                        placeholder="Ask me anything about Edward..."
-                        rows="1"
-                    ></textarea>
-                </div>
-                <button id="sendBtn" class="send-btn">
-                    <span>Send</span>
-                </button>
             </div>
         </div>
     </div>
@@ -657,7 +672,7 @@
 
         function adjustTextareaHeight() {
             messageInput.style.height = 'auto';
-            messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
         }
 
         function clearConversation() {
@@ -688,7 +703,7 @@
                 if (response.ok) {
                     isBackendOnline = true;
                     statusDot.classList.add('online');
-                    statusText.textContent = 'Connected';
+                    statusText.textContent = 'Connected to backend';
                 } else {
                     throw new Error('Backend offline');
                 }
