@@ -957,7 +957,7 @@
                     if (!document.hidden) {
                         sendHeartbeat();
                     }
-                }, 60000); // Every minute when active
+                }, 30000); // Every 30 seconds when active
             }
         }
         
@@ -1163,6 +1163,9 @@
                     if (response.ok) {
                         const data = await response.json();
                         removeTypingIndicator(typingEl);
+                        
+                        // Update heartbeat after successful message
+                        sendHeartbeat();
                         
                         const botResponse = data.response || 'No response received';
                         addMessage('bot', botResponse);
