@@ -562,6 +562,9 @@
         let isLoading = false;
         let conversationHistory = []; // Store conversation locally
         let isBackendOnline = false;
+        let connectionStatus = 'connecting'; // connecting, connected, disconnected, reconnecting
+        let heartbeatInterval;
+        let lastHeartbeatResponse = Date.now();
 
         // DOM elements
         const chatArea = document.getElementById('chatArea');
@@ -582,6 +585,7 @@
             adjustTextareaHeight();
             updateSessionDisplay();
             setupSuggestions(); // Initialize suggestions
+            setupConnectionManagement();
         });
 
         function generateSessionId() {
@@ -695,6 +699,203 @@
                 
                 addSystemMessage('Conversation cleared. New session started.');
             }
+        }
+
+        // ===== CONNECTION MANAGEMENT =====
+        
+        function setupConnectionManagement() {
+            // Set up beforeunload cleanup
+            window.addEventListener('beforeunload', () => {
+                if (connectionStatus === 'connected') {
+                    navigator.sendBeacon(
+                        `${API_BASE_URL}/cleanup-session`,
+                        JSON.stringify({ session_id: sessionId })
+                    );
+                }
+            });
+            
+            // Set up Page Visibility API for smart heartbeat
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    stopHeartbeat();
+                } else if (connectionStatus === 'connected') {
+                    startHeartbeat();
+                }
+            });
+            
+            // Start initial connection check
+            checkConnectionStatus();
+        }
+        
+        function updateConnectionStatus(status) {
+            connectionStatus = status;
+            
+            const statusMessages = {
+                connecting: { text: 'Connecting...', class: '' },
+                connected: { text: 'Connected', class: 'online' },
+                disconnected: { text: 'Session expired', class: '' },
+                reconnecting: { text: 'Reconnecting...', class: '' }
+            };
+            
+            const statusInfo = statusMessages[status];
+            statusText.textContent = statusInfo.text;
+            statusDot.className = `status-dot ${statusInfo.class}`;
+            
+            // Note: Specific notifications are now handled in handleDisconnection()
+        }
+        
+        function checkConnectionStatus() {
+            updateConnectionStatus('connecting');
+            
+            fetch(`${API_BASE_URL}/health`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'healthy') {
+                    updateConnectionStatus('connected');
+                    isBackendOnline = true;
+                    startHeartbeat();
+                } else {
+                    updateConnectionStatus('disconnected');
+                    isBackendOnline = false;
+                }
+            })
+            .catch(error => {
+                console.log('Backend connection failed:', error);
+                updateConnectionStatus('disconnected');
+                isBackendOnline = false;
+                
+                // Retry connection after delay
+                setTimeout(() => {
+                    if (connectionStatus === 'disconnected') {
+                        checkConnectionStatus();
+                    }
+                }, 5000);
+            });
+        }
+        
+        function startHeartbeat() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+            }
+            
+            // Only heartbeat when tab is active and connected
+            if (!document.hidden && connectionStatus === 'connected') {
+                heartbeatInterval = setInterval(() => {
+                    if (!document.hidden) {
+                        sendHeartbeat();
+                    }
+                }, 60000); // Every minute when active
+            }
+        }
+        
+        function stopHeartbeat() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+        }
+        
+        async function sendHeartbeat() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/heartbeat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                
+                if (response.ok) {
+                    lastHeartbeatResponse = Date.now();
+                    if (connectionStatus !== 'connected') {
+                        updateConnectionStatus('connected');
+                    }
+                } else if (response.status === 404) {
+                    // Server says session not found = actual session expiry
+                    handleDisconnection('session_not_found');
+                } else {
+                    // Server error (500, 503, etc.) = server issue
+                    handleDisconnection('server_error');
+                }
+            } catch (error) {
+                console.log('Heartbeat failed:', error);
+                // Can't reach server = network issue
+                handleDisconnection('network_error');
+            }
+        }
+        
+        function handleDisconnection(errorType) {
+            updateConnectionStatus('disconnected');
+            
+            // Show appropriate message based on error type
+            if (errorType === 'session_not_found') {
+                showDisconnectionNotification("Starting a new conversation...", "info");
+            } else {
+                // network_error OR server_error
+                showDisconnectionNotification("Connection lost. Reconnecting...", "warning");
+            }
+            
+            // Regardless of cause, clear and start new session
+            clearChatAndStartNew();
+        }
+        
+        function clearChatAndStartNew() {
+            // Generate new session ID and clear history
+            sessionId = generateSessionId();
+            conversationHistory = [];
+            updateSessionDisplay();
+            
+            // Clear chat area except welcome message
+            const messages = chatArea.querySelectorAll('.message:not(:first-child)');
+            messages.forEach(msg => msg.remove());
+            
+            // Try to reconnect
+            setTimeout(() => {
+                checkConnectionStatus();
+            }, 2000);
+        }
+        
+        function showDisconnectionNotification(message, type = "warning") {
+            const notification = document.createElement('div');
+            
+            // Different colors based on type
+            const colors = {
+                info: { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af' },
+                warning: { bg: '#fef3c7', border: '#fbbf24', text: '#92400e' },
+                error: { bg: '#fee2e2', border: '#fca5a5', text: '#b91c1c' }
+            };
+            
+            const color = colors[type] || colors.warning;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${color.bg};
+                border: 1px solid ${color.border};
+                color: ${color.text};
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                max-width: 300px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
         }
 
         async function checkBackendStatus() {
