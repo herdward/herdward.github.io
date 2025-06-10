@@ -825,10 +825,14 @@
             addSystemMessage('Debug info will show for responses if token is valid');
         }
 
-        function clearConversation() {
+        async function clearConversation() {
             if (confirm('Clear conversation history?')) {
+                const currentSessionId = sessionId;
+                
+                // Clear local data first
                 conversationHistory = [];
-                sessionId = generateSessionId();
+                const newSessionId = generateSessionId();
+                sessionId = newSessionId;
                 updateSessionDisplay();
                 
                 // Clear chat area but keep initial message
@@ -844,6 +848,24 @@
                 suggestions.style.display = 'block';
                 
                 addSystemMessage('Conversation cleared. New session started.');
+                
+                // Clean up the session in the backend database
+                if (isBackendOnline) {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/cleanup-session`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ session_id: currentSessionId })
+                        });
+                        
+                        if (response.ok) {
+                            const result = await response.json();
+                            console.log(`Session cleaned: ${result.messages_deleted} messages deleted from database`);
+                        }
+                    } catch (error) {
+                        console.log('Could not cleanup session in database:', error);
+                    }
+                }
             }
         }
 
