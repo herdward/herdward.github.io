@@ -554,6 +554,7 @@
                         <span id="statusText">Connecting to backend...</span>
                     </div>
                     <span id="sessionId">Session: Loading...</span>
+                    <span id="versionInfo">v?.?.?</span>
                     <button class="clear-btn" onclick="clearConversation()">Clear</button>
                 </div>
             </div>
@@ -626,6 +627,7 @@
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
         const sessionIdDisplay = document.getElementById('sessionId');
+        const versionInfo = document.getElementById('versionInfo');
         const toggleBtns = document.querySelectorAll('.toggle-btn');
         const suggestions = document.getElementById('suggestions');
         const suggestionsGrid = document.getElementById('suggestionsGrid');
@@ -639,6 +641,7 @@
             updateSessionDisplay();
             setupSuggestions(); // Initialize suggestions
             setupConnectionManagement();
+            fetchVersion(); // Fetch backend version
         });
 
         function generateSessionId() {
@@ -1060,6 +1063,21 @@
             
             // Update suggestions based on backend status
             updateSuggestions(isBackendOnline);
+        }
+
+        async function fetchVersion() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/version`);
+                if (response.ok) {
+                    const versionData = await response.json();
+                    versionInfo.textContent = `v${versionData.version}`;
+                } else {
+                    versionInfo.textContent = 'v?.?.?';
+                }
+            } catch (error) {
+                console.log('Could not fetch version:', error);
+                versionInfo.textContent = 'v?.?.?';
+            }
         }
 
         function addDemoModeNotice() {
