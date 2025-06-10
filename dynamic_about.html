@@ -180,6 +180,58 @@
             color: white;
         }
 
+        /* Debug Info */
+        .debug-info {
+            background: #f0f8ff;
+            border: 1px solid #4a90e2;
+            border-left: 4px solid #4a90e2;
+            padding: 8px 12px;
+            margin: 8px 0;
+            font-size: 0.75rem;
+            font-family: 'Roboto Mono', monospace;
+            color: #2c5282;
+            border-radius: 3px;
+        }
+
+        .debug-info strong {
+            color: #1a365d;
+        }
+
+        /* Debug Input */
+        .debug-input {
+            display: none;
+            background: #f0f8ff;
+            border: 1px solid #4a90e2;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .debug-input.show {
+            display: block;
+        }
+
+        .debug-token-input {
+            width: 200px;
+            padding: 5px;
+            border: 1px solid #4a90e2;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+
+        .debug-activate-btn {
+            padding: 5px 10px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
         /* Chat Area */
         .chat-area {
             flex: 1;
@@ -565,6 +617,7 @@
         let connectionStatus = 'connecting'; // connecting, connected, disconnected, reconnecting
         let heartbeatInterval;
         let lastHeartbeatResponse = Date.now();
+        let debugMode = false; // Debug mode toggle
 
         // DOM elements
         const chatArea = document.getElementById('chatArea');
@@ -615,6 +668,35 @@
 
             // Auto-resize textarea
             messageInput.addEventListener('input', adjustTextareaHeight);
+
+            // Secret combo to reveal debug input (Cmd+Option+X on Mac, Ctrl+Alt+X on PC)
+            document.addEventListener('keydown', (e) => {
+                const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                const modifierKey = isMac ? e.metaKey : e.ctrlKey;
+                const altKey = e.altKey;
+                
+                // Debug logging
+                if (modifierKey && altKey) {
+                    console.log('Key pressed:', e.key, 'Cmd:', e.metaKey, 'Option:', e.altKey);
+                }
+                
+                if (modifierKey && altKey && (e.key === 'x' || e.key === 'X' || e.key === '≈')) {
+                    e.preventDefault();
+                    showDebugInput();
+                }
+            });
+
+            // Alternative: Triple-click on the title to reveal debug input
+            let titleClickCount = 0;
+            document.querySelector('h1').addEventListener('click', () => {
+                titleClickCount++;
+                setTimeout(() => { titleClickCount = 0; }, 1000);
+                
+                if (titleClickCount === 3) {
+                    showDebugInput();
+                    titleClickCount = 0;
+                }
+            });
         }
 
         function setupSuggestions() {
@@ -677,6 +759,67 @@
         function adjustTextareaHeight() {
             messageInput.style.height = 'auto';
             messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
+        }
+
+        let debugToken = null;
+
+        function showDebugInput() {
+            // Check if debug input already exists
+            let debugInput = document.getElementById('debugInput');
+            if (debugInput) {
+                debugInput.classList.toggle('show');
+                return;
+            }
+
+            // Create debug input
+            debugInput = document.createElement('div');
+            debugInput.id = 'debugInput';
+            debugInput.className = 'debug-input show';
+            debugInput.innerHTML = `
+                <strong>🔐 Debug Mode Authorization</strong><br>
+                <input type="password" id="debugTokenInput" class="debug-token-input" placeholder="Enter debug token...">
+                <button id="debugActivateBtn" class="debug-activate-btn">Activate</button>
+                <button id="debugCancelBtn" class="debug-activate-btn" style="background: #ef4444; margin-left: 5px;">Cancel</button>
+            `;
+
+            // Insert after controls
+            const controls = document.querySelector('.controls');
+            controls.parentNode.insertBefore(debugInput, controls.nextSibling);
+
+            // Add event listeners
+            document.getElementById('debugActivateBtn').addEventListener('click', activateDebugMode);
+            document.getElementById('debugCancelBtn').addEventListener('click', () => {
+                debugInput.remove();
+            });
+            
+            document.getElementById('debugTokenInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    activateDebugMode();
+                }
+            });
+
+            // Focus the input
+            document.getElementById('debugTokenInput').focus();
+        }
+
+        function activateDebugMode() {
+            const tokenInput = document.getElementById('debugTokenInput');
+            const token = tokenInput.value.trim();
+            
+            if (!token) {
+                addSystemMessage('Debug token required');
+                return;
+            }
+
+            debugToken = token;
+            debugMode = true;
+            
+            // Remove debug input
+            document.getElementById('debugInput').remove();
+            
+            addSystemMessage('Debug mode enabled with server validation');
+            addSystemMessage('Debug info will show for responses if token is valid');
         }
 
         function clearConversation() {
@@ -972,7 +1115,8 @@
                             question: message,
                             mode: currentMode,
                             session_id: sessionId,
-                            conversation_history: recentHistory
+                            conversation_history: recentHistory,
+                            debug_token: debugMode ? debugToken : undefined
                         })
                     });
 
@@ -982,6 +1126,15 @@
                         
                         const botResponse = data.response || 'No response received';
                         addMessage('bot', botResponse);
+                        
+                        // Show debug info if debug mode is enabled and server returned debug data
+                        if (debugMode && data.debug_info) {
+                            addDebugInfo(data.debug_info);
+                        } else if (debugMode && !data.debug_info) {
+                            addSystemMessage('⚠️ Debug token invalid or expired');
+                            debugMode = false;
+                            debugToken = null;
+                        }
                         
                         // Add bot response to conversation history
                         conversationHistory.push({
@@ -1083,6 +1236,25 @@
             messageEl.className = 'system-message';
             messageEl.textContent = content;
             chatArea.appendChild(messageEl);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addDebugInfo(debugInfo) {
+            const debugEl = document.createElement('div');
+            debugEl.className = 'debug-info';
+            
+            const confidenceColor = debugInfo.confidence >= 80 ? '#10b981' : debugInfo.confidence >= 60 ? '#f59e0b' : '#ef4444';
+            
+            debugEl.innerHTML = `
+                <strong>🛠️ Debug Info:</strong><br>
+                <strong>Intent:</strong> ${debugInfo.intent || 'unknown'} | 
+                <strong>Tone:</strong> ${debugInfo.tone || 'unknown'} | 
+                <strong>Confidence:</strong> <span style="color: ${confidenceColor}">${debugInfo.confidence || 0}%</span><br>
+                <strong>Sources Used:</strong> ${debugInfo.sources_used || 0} chunks | 
+                <strong>Reasoning:</strong> ${debugInfo.reasoning || 'No reasoning provided'}
+            `;
+            
+            chatArea.appendChild(debugEl);
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
