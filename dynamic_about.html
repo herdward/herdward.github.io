@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -535,7 +536,9 @@
                 </ul>
             </nav>
             <h1>Dynamic About Me</h1>
-            <p class="subtitle"><i>Ask the lorekeeper.</i></p> 
+            <p class="subtitle"><i>Delve beyond the static info.</i></p> 
+            <p>Dev Note: June 10th 2025, this has very minimal information.</p>
+            <p>Quality of responses will get better.</p>
         </div>
 
         <!-- Chat Interface -->
@@ -1188,6 +1191,21 @@
                         });
 
                         console.log(`Intent: ${data.intent}, Tone: ${data.tone}, Confidence: ${data.confidence}%`);
+                    } else if (response.status === 400 || response.status === 429) {
+                        // Handle security blocks and rate limits
+                        const errorData = await response.json();
+                        removeTypingIndicator(typingEl);
+                        
+                        // Use the user-friendly message from Cloudflare Worker, or fall back to detail
+                        const errorMessage = errorData.user_message || errorData.detail || 'Request blocked for security reasons.';
+                        addMessage('bot', errorMessage);
+                        
+                        // Still add user message to history for context
+                        conversationHistory.push({
+                            role: 'user',
+                            content: message,
+                            timestamp: new Date().toISOString()
+                        });
                     } else {
                         throw new Error(`API request failed: ${response.status}`);
                     }
