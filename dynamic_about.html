@@ -180,6 +180,64 @@
             color: white;
         }
 
+        /* Export Controls */
+        .export-controls {
+            display: none;
+            background: #f0f8ff;
+            border: 1px solid #4a90e2;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .export-controls.show {
+            display: block !important;
+        }
+
+        .export-header {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1e40af;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            padding: 8px 16px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .export-btn:hover {
+            background: #357abd;
+        }
+
+        .export-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .export-info {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
         /* Debug Info */
         .debug-info {
             background: #f0f8ff;
@@ -554,6 +612,26 @@
                     <span id="sessionId">Session: Loading...</span>
                     <span id="versionInfo">v?.?.?</span>
                     <button class="clear-btn" onclick="clearConversation()">Clear</button>
+                    <button class="clear-btn" onclick="toggleExportControls()">Export</button>
+                </div>
+            </div>
+
+            <!-- Export Controls -->
+            <div class="export-controls" id="exportControls">
+                <div class="export-header">📄 Export Conversation</div>
+                <div class="export-buttons">
+                    <button class="export-btn" onclick="exportConversation('json')">
+                        <span>📋 JSON</span>
+                    </button>
+                    <button class="export-btn" onclick="exportConversation('markdown')">
+                        <span>📝 Markdown</span>
+                    </button>
+                    <button class="export-btn" onclick="exportConversation('pdf')">
+                        <span>📄 PDF</span>
+                    </button>
+                </div>
+                <div class="export-info" id="exportInfo">
+                    Select a format to download your conversation. JSON includes full metadata, Markdown is readable text, and PDF creates a formatted document.
                 </div>
             </div>
 
@@ -1395,6 +1473,135 @@
                 saveConversationToStorage();
             }
         }, 30000); // Save every 30 seconds
+
+        // ===== EXPORT FUNCTIONALITY =====
+        
+        function toggleExportControls() {
+            const exportControls = document.getElementById('exportControls');
+            const isVisible = exportControls.classList.contains('show');
+            
+            if (isVisible) {
+                exportControls.classList.remove('show');
+            } else {
+                // Check if there are messages to export
+                const userMessageCount = conversationHistory.filter(msg => msg.role === 'user').length;
+                if (userMessageCount === 0) {
+                    addSystemMessage('No conversation to export. Start a conversation first!');
+                    return;
+                }
+                
+                exportControls.classList.add('show');
+                updateExportInfo();
+            }
+        }
+        
+        function updateExportInfo() {
+            const exportInfo = document.getElementById('exportInfo');
+            const userMessages = conversationHistory.filter(msg => msg.role === 'user').length;
+            const botMessages = conversationHistory.filter(msg => msg.role === 'assistant').length;
+            const totalWords = conversationHistory.reduce((total, msg) => total + msg.content.split(' ').length, 0);
+            
+            exportInfo.innerHTML = `
+                Ready to export: ${userMessages} user messages, ${botMessages} AI responses (${totalWords} total words)<br>
+                JSON includes full metadata • Markdown is readable text • PDF creates a formatted document
+            `;
+        }
+        
+        async function exportConversation(format) {
+            if (!isBackendOnline) {
+                addSystemMessage('Export feature requires backend connection. Currently in demo mode.');
+                return;
+            }
+            
+            // Validate format
+            if (!['json', 'markdown', 'pdf'].includes(format)) {
+                addSystemMessage('Invalid export format');
+                return;
+            }
+            
+            // Check if there's a conversation to export
+            if (conversationHistory.filter(msg => msg.role === 'user').length === 0) {
+                addSystemMessage('No conversation to export');
+                return;
+            }
+            
+            const exportButtons = document.querySelectorAll('.export-btn');
+            const clickedButton = Array.from(exportButtons).find(btn => 
+                btn.getAttribute('onclick').includes(format)
+            );
+            
+            try {
+                // Disable all export buttons and show loading
+                exportButtons.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn === clickedButton) {
+                        btn.innerHTML = '<span>⏳ Exporting...</span>';
+                    }
+                });
+                
+                // Make export request
+                const response = await fetch(`${API_BASE_URL}/export/${sessionId}?format=${format}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // Get the filename from response headers
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = `conversation_export.${format === 'markdown' ? 'md' : format}`;
+                    
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+                        if (filenameMatch) {
+                            filename = filenameMatch[1].replace(/"/g, '');
+                        }
+                    }
+                    
+                    // Create download
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    addSystemMessage(`✅ Conversation exported as ${format.toUpperCase()}: ${filename}`);
+                    
+                    // Hide export controls after successful export
+                    document.getElementById('exportControls').classList.remove('show');
+                    
+                } else if (response.status === 404) {
+                    addSystemMessage('❌ No conversation found to export. The session may have expired.');
+                } else {
+                    const errorData = await response.json();
+                    addSystemMessage(`❌ Export failed: ${errorData.detail || 'Unknown error'}`);
+                }
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                addSystemMessage('❌ Export failed due to network error. Please try again.');
+            } finally {
+                // Re-enable buttons and restore text
+                exportButtons.forEach(btn => {
+                    btn.disabled = false;
+                });
+                
+                // Restore button text
+                if (clickedButton) {
+                    const formatIcons = {
+                        'json': '📋 JSON',
+                        'markdown': '📝 Markdown', 
+                        'pdf': '📄 PDF'
+                    };
+                    clickedButton.innerHTML = `<span>${formatIcons[format]}</span>`;
+                }
+            }
+        }
     </script>
 </body>
 </html>
