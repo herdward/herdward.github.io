@@ -31,6 +31,8 @@ h1 {
     font-size: 2rem;
     border-bottom: 2px solid #111;
     padding-bottom: 0.5rem;
+    text-align: center;
+    margin-top: 2rem;
 }
 
 h2 {
@@ -42,7 +44,7 @@ h2 {
     max-width: 800px;
     margin: 2rem auto;
     padding: 0 1rem;
-    line-height: 1.6;
+    line-height: 1.8;
 }
 
 p {
@@ -82,20 +84,6 @@ nav ul li a:hover {
     text-decoration: underline;
 }
 
-h1 {
-    font-size: 2rem;
-    border-bottom: 2px solid #111;
-    padding-bottom: 0.5rem;
-    text-align: center; /* center the title */
-    margin-top: 2rem;
-}
-
-.about-text {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-    line-height: 1.8;
-}
 /** specific to index.html */
 .home {
     max-width: 800px;
